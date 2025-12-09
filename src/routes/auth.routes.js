@@ -3,7 +3,7 @@ const JWT = require("jsonwebtoken");
 const userModel = require("../models/user.model");
 const router = express.Router();
 
-// POST Method for /register API
+// POST Method for /register API ,/login API
 
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
@@ -66,6 +66,35 @@ router.post("/login", async (req, res) => {
   });
 });
 
+// GET Method for /user [protected]
 
+router.get("/user", async (req, res) => {
+  const { token } = req.cookies;
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized Token not found",
+    });
+  }
+
+  try {
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel
+      .findOne({
+        _id: decoded.id,
+      })
+      .select("-password -__v");
+
+    return res.status(200).json({
+      message: "User data Fetched successfully",
+      user: user,
+    });
+  } catch (error) {
+    res.status(401).json({
+      message: "Unauthorized Invalid Token",
+    });
+  }
+});
 
 module.exports = router;
