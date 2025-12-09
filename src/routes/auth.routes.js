@@ -66,7 +66,7 @@ router.post("/login", async (req, res) => {
   });
 });
 
-// GET Method for /user [protected]
+// GET Method for /user [protected] API ,/logot API
 
 router.get("/user", async (req, res) => {
   const { token } = req.cookies;
@@ -96,5 +96,12 @@ router.get("/user", async (req, res) => {
     });
   }
 });
+
+router.get("/logout",(req ,res)=>{
+    res.clearCookie("token");
+    res.status(200).json({
+        message:"User logged out successfully"
+    })
+})
 
 module.exports = router;
