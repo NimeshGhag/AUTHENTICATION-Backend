@@ -33,4 +33,39 @@ router.post("/register", async (req, res) => {
   });
 });
 
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await userModel.findOne({
+    username,
+  });
+
+  if (!user) {
+    return res.status(404).json({
+      message: "User account not found",
+    });
+  }
+
+  const isPasswodValid = password === user.password;
+
+  if (!isPasswodValid) {
+    return res.status(401).json({
+      message: "Invalid Password",
+    });
+  }
+
+  const token = JWT.sign({ id: user._id }, process.env.JWT_SECRET);
+
+  res.cookie("token", token, {
+    expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+  });
+
+  res.status(200).json({
+    message: "User login Successfully",
+    user: user,
+  });
+});
+
+
+
 module.exports = router;
